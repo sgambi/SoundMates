@@ -7,7 +7,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/SoundMates">
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/callback" element={<Callback />} />
