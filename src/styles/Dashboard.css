@@ -163,6 +163,76 @@
   opacity: 0.6;
 }
 
+/* Tabs */
+.dashboard-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0;
+}
+
+.tab-button {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-button:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-button.active {
+  color: #1db954;
+  border-bottom-color: #1db954;
+}
+
+/* Tab content */
+.player-tab,
+.playlists-tab {
+  animation: fadeIn 0.4s ease-in;
+}
+
+.player-tab h2,
+.playlists-tab h2 {
+  color: white;
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.tab-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  margin: 0 0 2rem 0;
+}
+
+.playlist-details {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+}
+
+.playlist-details h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1db954;
+}
+
+.playlist-details p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 1rem 1.5rem;
@@ -189,5 +259,21 @@
 
   .user-name {
     display: none;
+  }
+
+  .dashboard-tabs {
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  .player-tab h2,
+  .playlists-tab h2 {
+    font-size: 1.5rem;
   }
 }

@@ -11,6 +11,10 @@ export const SPOTIFY_CONFIG = {
     'playlist-read-private',
     'playlist-read-collaborative',
     'user-read-recently-played',
+    'streaming',
+    'user-read-playback-state',
+    'user-modify-playback-state',
+    'user-read-currently-playing',
   ],
 };
 
