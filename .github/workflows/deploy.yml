@@ -31,6 +31,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check environment variables
+        run: |
+          echo "VITE_SPOTIFY_CLIENT_ID is set: $([[ -n "$VITE_SPOTIFY_CLIENT_ID" ]] && echo 'YES' || echo 'NO')"
+          echo "VITE_SPOTIFY_REDIRECT_URI is set: $([[ -n "$VITE_SPOTIFY_REDIRECT_URI" ]] && echo 'YES' || echo 'NO')"
+        env:
+          VITE_SPOTIFY_CLIENT_ID: ${{ secrets.VITE_SPOTIFY_CLIENT_ID }}
+          VITE_SPOTIFY_REDIRECT_URI: ${{ secrets.VITE_SPOTIFY_REDIRECT_URI }}
+
       - name: Build
         run: npm run build
         env:
