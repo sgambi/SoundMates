@@ -1,22 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isAuthenticated, clearToken, getToken } from '../utils/auth';
-import SpotifyPlayer from '../components/SpotifyPlayer';
-import PlaylistSelector from '../components/PlaylistSelector';
-import type { SpotifyPlaylist } from '../types/spotify';
+import { isAuthenticated, clearToken } from '../utils/auth';
+import { spotifyApi } from '../services/spotifyApi';
+import type { SpotifyPlaylist, SpotifyUser } from '../types/spotify';
 import '../styles/Dashboard.css';
-
-interface UserProfile {
-  display_name: string;
-  email: string;
-  images: Array<{ url: string }>;
-}
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<SpotifyUser | null>(null);
+  const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'games' | 'player' | 'playlists'>('games');
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  const [activeTab, setActiveTab] = useState<'games' | 'playlists'>('games');
   const [selectedPlaylist, setSelectedPlaylist] = useState<SpotifyPlaylist | null>(null);
 
   useEffect(() => {
@@ -26,32 +21,27 @@ const Dashboard = () => {
       return;
     }
 
-    // Carica i dati dell'utente
-    fetchUserProfile();
+    // Carica i dati dell'utente e le playlist
+    fetchUserData();
   }, [navigate]);
 
-  const fetchUserProfile = async () => {
-    const token = getToken();
-    if (!token) return;
-
+  const fetchUserData = async () => {
     try {
-      const response = await fetch('https://api.spotify.com/v1/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Carica profilo utente
+      const userData = await spotifyApi.getCurrentUser();
+      setUser(userData);
 
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data);
-      } else {
-        // Token non valido o scaduto
-        handleLogout();
-      }
+      // Carica playlist
+      setLoadingPlaylists(true);
+      const playlistsData = await spotifyApi.getAllUserPlaylists();
+      setPlaylists(playlistsData);
     } catch (error) {
-      console.error('Errore nel caricamento del profilo:', error);
+      console.error('Errore nel caricamento dei dati:', error);
+      // Se il token è scaduto, effettua il logout
+      handleLogout();
     } finally {
       setLoading(false);
+      setLoadingPlaylists(false);
     }
   };
 
@@ -103,16 +93,10 @@ const Dashboard = () => {
             🎮 Giochi
           </button>
           <button
-            className={`tab-button ${activeTab === 'player' ? 'active' : ''}`}
-            onClick={() => setActiveTab('player')}
-          >
-            🎵 Player
-          </button>
-          <button
             className={`tab-button ${activeTab === 'playlists' ? 'active' : ''}`}
             onClick={() => setActiveTab('playlists')}
           >
-            📚 Playlist
+            📚 Le tue Playlist
           </button>
         </div>
 
@@ -127,10 +111,13 @@ const Dashboard = () => {
             <div className="games-grid">
               <div className="game-card">
                 <div className="game-icon">🎯</div>
-                <h3>Music Quiz</h3>
+                <h3>Indovina la Canzone</h3>
                 <p>Indovina il brano dai primi secondi</p>
-                <button className="game-button" disabled>
-                  Prossimamente
+                <button
+                  className="game-button"
+                  onClick={() => navigate('/game/guess-song')}
+                >
+                  Gioca
                 </button>
               </div>
 
@@ -164,30 +151,46 @@ const Dashboard = () => {
           </>
         )}
 
-        {activeTab === 'player' && (
-          <div className="player-tab">
-            <h2>Spotify Player</h2>
-            <p className="tab-description">
-              Controlla la tua musica direttamente da qui. Richiede Spotify Premium.
-            </p>
-            <SpotifyPlayer />
-          </div>
-        )}
-
         {activeTab === 'playlists' && (
           <div className="playlists-tab">
             <h2>Le tue Playlist</h2>
             <p className="tab-description">
-              Esplora e analizza le tue playlist Spotify
+              {loadingPlaylists ? 'Caricamento playlist...' : `${playlists.length} playlist trovate`}
             </p>
-            <PlaylistSelector
-              onPlaylistSelect={(playlist) => setSelectedPlaylist(playlist)}
-              showTracks={true}
-            />
+
+            {!loadingPlaylists && playlists.length > 0 && (
+              <div className="playlists-grid">
+                {playlists.map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="playlist-card"
+                    onClick={() => setSelectedPlaylist(playlist)}
+                  >
+                    {playlist.images && playlist.images.length > 0 ? (
+                      <img
+                        src={playlist.images[0].url}
+                        alt={playlist.name}
+                        className="playlist-cover"
+                      />
+                    ) : (
+                      <div className="playlist-cover-placeholder">🎵</div>
+                    )}
+                    <div className="playlist-info">
+                      <h3 className="playlist-name">{playlist.name}</h3>
+                      <p className="playlist-tracks-count">
+                        {playlist.tracks.total} {playlist.tracks.total === 1 ? 'brano' : 'brani'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {selectedPlaylist && (
               <div className="playlist-details">
                 <h3>Playlist selezionata: {selectedPlaylist.name}</h3>
                 <p>{selectedPlaylist.tracks.total} brani</p>
+                <button onClick={() => setSelectedPlaylist(null)}>Chiudi</button>
               </div>
             )}
           </div>

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Callback from './pages/Callback';
 import Dashboard from './pages/Dashboard';
+import GuessSongGame from './pages/GuessSongGame';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -16,6 +17,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/game/guess-song"
+          element={
+            <ProtectedRoute>
+              <GuessSongGame />
             </ProtectedRoute>
           }
         />
