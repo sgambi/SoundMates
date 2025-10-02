@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { spotifyApi } from '../services/spotifyApi';
-import type { SpotifyPlaybackState, SpotifyTrack } from '../types/spotify';
+import type { SpotifyTrack } from '../types/spotify';
 
 interface UseSpotifyPlayerOptions {
   autoConnect?: boolean;
@@ -53,7 +53,7 @@ export const useSpotifyPlayer = (options: UseSpotifyPlayerOptions = {}): UseSpot
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingIntervalRef = useRef<number | null>(null);
 
   /**
    * Aggiorna lo stato del player da Spotify
